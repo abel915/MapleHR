@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { handleLogin, handleRegister, handleVerifyToken, handleLogout, authenticateToken } from "./routes/auth";
+import { getTasks, createTask, updateTask, deleteTask } from "./routes/tasks";
 
 export function createServer() {
   const app = express();
@@ -18,6 +20,18 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // Authentication routes
+  app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/register", handleRegister);
+  app.get("/api/auth/verify", handleVerifyToken);
+  app.post("/api/auth/logout", handleLogout);
+
+  // Protected task routes
+  app.get("/api/tasks", authenticateToken, getTasks);
+  app.post("/api/tasks", authenticateToken, createTask);
+  app.put("/api/tasks/:id", authenticateToken, updateTask);
+  app.delete("/api/tasks/:id", authenticateToken, deleteTask);
 
   return app;
 }
