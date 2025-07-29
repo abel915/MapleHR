@@ -1,5 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, LoginRequest, RegisterRequest, AuthResponse } from '@shared/auth';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  User,
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+} from "@shared/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check for existing token on mount
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem("auth_token");
     if (token) {
       // Verify token with server
       verifyToken(token);
@@ -28,21 +39,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await fetch('/api/auth/verify', {
+      const response = await fetch("/api/auth/verify", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
       } else {
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem("auth_token");
       }
     } catch (error) {
-      console.error('Token verification failed:', error);
-      localStorage.removeItem('auth_token');
+      console.error("Token verification failed:", error);
+      localStorage.removeItem("auth_token");
     } finally {
       setLoading(false);
     }
@@ -51,20 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginRequest) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify(credentials),
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        throw new Error("Login failed");
       }
 
       const authData: AuthResponse = await response.json();
-      localStorage.setItem('auth_token', authData.token);
+      localStorage.setItem("auth_token", authData.token);
       setUser(authData.user);
     } catch (error) {
       throw error;
@@ -76,20 +87,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (data: RegisterRequest) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Registration failed');
+        throw new Error("Registration failed");
       }
 
       const authData: AuthResponse = await response.json();
-      localStorage.setItem('auth_token', authData.token);
+      localStorage.setItem("auth_token", authData.token);
       setUser(authData.user);
     } catch (error) {
       throw error;
@@ -99,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem("auth_token");
     setUser(null);
   };
 
@@ -113,7 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

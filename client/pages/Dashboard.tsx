@@ -1,30 +1,51 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Task, CreateTaskRequest } from '@shared/auth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, LogOut, Trash2, Edit } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Task, CreateTaskRequest } from "@shared/auth";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Plus, LogOut, Trash2, Edit } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all');
-  const [priorityFilter, setPriorityFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
+  const [filter, setFilter] = useState<"all" | "completed" | "pending">("all");
+  const [priorityFilter, setPriorityFilter] = useState<
+    "all" | "low" | "medium" | "high"
+  >("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newTask, setNewTask] = useState<CreateTaskRequest>({
-    title: '',
-    description: '',
-    priority: 'medium'
+    title: "",
+    description: "",
+    priority: "medium",
   });
 
   useEffect(() => {
@@ -33,13 +54,13 @@ export default function Dashboard() {
 
   const fetchTasks = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/tasks', {
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/tasks", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
         const tasksData = await response.json();
         setTasks(tasksData);
@@ -48,7 +69,7 @@ export default function Dashboard() {
       toast({
         title: "Error",
         description: "Failed to fetch tasks",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -57,103 +78,108 @@ export default function Dashboard() {
 
   const createTask = async () => {
     if (!newTask.title.trim()) return;
-    
+
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/tasks", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(newTask)
+        body: JSON.stringify(newTask),
       });
-      
+
       if (response.ok) {
         const createdTask = await response.json();
-        setTasks(prev => [createdTask, ...prev]);
-        setNewTask({ title: '', description: '', priority: 'medium' });
+        setTasks((prev) => [createdTask, ...prev]);
+        setNewTask({ title: "", description: "", priority: "medium" });
         setIsCreateDialogOpen(false);
         toast({
           title: "Success",
-          description: "Task created successfully"
+          description: "Task created successfully",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to create task",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const toggleTaskCompletion = async (taskId: string, completed: boolean) => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ completed })
+        body: JSON.stringify({ completed }),
       });
-      
+
       if (response.ok) {
         const updatedTask = await response.json();
-        setTasks(prev => prev.map(task => 
-          task.id === taskId ? updatedTask : task
-        ));
+        setTasks((prev) =>
+          prev.map((task) => (task.id === taskId ? updatedTask : task)),
+        );
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update task",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const deleteTask = async (taskId: string) => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/tasks/${taskId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
-        setTasks(prev => prev.filter(task => task.id !== taskId));
+        setTasks((prev) => prev.filter((task) => task.id !== taskId));
         toast({
           title: "Success",
-          description: "Task deleted successfully"
+          description: "Task deleted successfully",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete task",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'completed' && !task.completed) return false;
-    if (filter === 'pending' && task.completed) return false;
-    if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "completed" && !task.completed) return false;
+    if (filter === "pending" && task.completed) return false;
+    if (priorityFilter !== "all" && task.priority !== priorityFilter)
+      return false;
     return true;
   });
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'default';
+      case "high":
+        return "destructive";
+      case "medium":
+        return "default";
+      case "low":
+        return "secondary";
+      default:
+        return "default";
     }
   };
 
@@ -182,7 +208,10 @@ export default function Dashboard() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
@@ -202,7 +231,9 @@ export default function Dashboard() {
                   <Input
                     id="title"
                     value={newTask.title}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) =>
+                      setNewTask((prev) => ({ ...prev, title: e.target.value }))
+                    }
                     placeholder="Enter task title"
                   />
                 </div>
@@ -211,7 +242,12 @@ export default function Dashboard() {
                   <Textarea
                     id="description"
                     value={newTask.description}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setNewTask((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                     placeholder="Enter task description (optional)"
                   />
                 </div>
@@ -219,8 +255,8 @@ export default function Dashboard() {
                   <Label htmlFor="priority">Priority</Label>
                   <Select
                     value={newTask.priority}
-                    onValueChange={(value: 'low' | 'medium' | 'high') => 
-                      setNewTask(prev => ({ ...prev, priority: value }))
+                    onValueChange={(value: "low" | "medium" | "high") =>
+                      setNewTask((prev) => ({ ...prev, priority: value }))
                     }
                   >
                     <SelectTrigger>
@@ -241,7 +277,10 @@ export default function Dashboard() {
           </Dialog>
 
           <div className="flex gap-2">
-            <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
+            <Select
+              value={filter}
+              onValueChange={(value: any) => setFilter(value)}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -252,7 +291,10 @@ export default function Dashboard() {
               </SelectContent>
             </Select>
 
-            <Select value={priorityFilter} onValueChange={(value: any) => setPriorityFilter(value)}>
+            <Select
+              value={priorityFilter}
+              onValueChange={(value: any) => setPriorityFilter(value)}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -270,24 +312,31 @@ export default function Dashboard() {
           {filteredTasks.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">No tasks found. Create your first task!</p>
+                <p className="text-muted-foreground">
+                  No tasks found. Create your first task!
+                </p>
               </CardContent>
             </Card>
           ) : (
-            filteredTasks.map(task => (
-              <Card key={task.id} className={task.completed ? 'opacity-75' : ''}>
+            filteredTasks.map((task) => (
+              <Card
+                key={task.id}
+                className={task.completed ? "opacity-75" : ""}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-3">
                       <Checkbox
                         checked={task.completed}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           toggleTaskCompletion(task.id, checked as boolean)
                         }
                         className="mt-1"
                       />
                       <div>
-                        <CardTitle className={`text-lg ${task.completed ? 'line-through' : ''}`}>
+                        <CardTitle
+                          className={`text-lg ${task.completed ? "line-through" : ""}`}
+                        >
                           {task.title}
                         </CardTitle>
                         {task.description && (
