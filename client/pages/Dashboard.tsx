@@ -269,7 +269,10 @@ export default function Dashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={createTask} className="w-full bg-green-600 hover:bg-green-700 text-white">
+                <Button
+                  onClick={createTask}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
                   Create Task
                 </Button>
               </div>
