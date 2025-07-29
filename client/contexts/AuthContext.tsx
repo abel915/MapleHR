@@ -23,10 +23,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-if (typeof window !== 'undefined') {
-  (window as any).__AUTH_CONTEXT_DEBUG__ = AuthContext;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
