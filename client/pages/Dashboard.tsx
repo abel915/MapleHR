@@ -196,7 +196,7 @@ export default function Dashboard() {
       <header className="bg-white shadow-sm border-b border-green-200">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Task Manager</h1>
+            <h1 className="text-2xl font-bold text-green-800">Task Manager</h1>
             <p className="text-gray-600">Welcome back, {user?.name}!</p>
           </div>
           <Button variant="outline" onClick={logout}>
