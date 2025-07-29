@@ -193,7 +193,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b border-green-200">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Task Manager</h1>
