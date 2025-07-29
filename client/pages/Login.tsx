@@ -15,13 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
-  const authContext = useAuth();
-
-  if (!authContext) {
-    return <div>Loading...</div>;
-  }
-
-  const { login, loading } = authContext;
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
