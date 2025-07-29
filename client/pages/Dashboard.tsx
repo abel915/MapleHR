@@ -213,7 +213,7 @@ export default function Dashboard() {
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Task
               </Button>
