@@ -29,7 +29,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, LogOut, Trash2, Edit } from "lucide-react";
+import {
+  Sidebar,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarFooter,
+} from '@/components/ui/sidebar';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Plus, LogOut, Trash2, X, PanelLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
@@ -66,6 +87,7 @@ export default function Dashboard() {
         setTasks(tasksData);
       }
     } catch (error) {
+      console.error("Failed to fetch tasks:", error);
       toast({
         title: "Error",
         description: "Failed to fetch tasks",
@@ -101,6 +123,7 @@ export default function Dashboard() {
         });
       }
     } catch (error) {
+      console.error("Failed to create task:", error);
       toast({
         title: "Error",
         description: "Failed to create task",
@@ -128,6 +151,7 @@ export default function Dashboard() {
         );
       }
     } catch (error) {
+      console.error("Failed to update task:", error);
       toast({
         title: "Error",
         description: "Failed to update task",
@@ -154,6 +178,7 @@ export default function Dashboard() {
         });
       }
     } catch (error) {
+      console.error("Failed to delete task:", error);
       toast({
         title: "Error",
         description: "Failed to delete task",
@@ -192,182 +217,282 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
-      <header className="bg-white shadow-sm border-b border-green-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-green-800">Task Manager</h1>
-            <p className="text-gray-600">Welcome back, {user?.name}!</p>
-          </div>
-          <Button variant="outline" onClick={logout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <Dialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Task
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
-                <DialogDescription>
-                  Add a new task to your list
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={newTask.title}
-                    onChange={(e) =>
-                      setNewTask((prev) => ({ ...prev, title: e.target.value }))
-                    }
-                    placeholder="Enter task title"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newTask.description}
-                    onChange={(e) =>
-                      setNewTask((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter task description (optional)"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select
-                    value={newTask.priority}
-                    onValueChange={(value: "low" | "medium" | "high") =>
-                      setNewTask((prev) => ({ ...prev, priority: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  onClick={createTask}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                >
-                  Create Task
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <div className="flex gap-2">
-            <Select
-              value={filter}
-              onValueChange={(value: any) => setFilter(value)}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Tasks</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={priorityFilter}
-              onValueChange={(value: any) => setPriorityFilter(value)}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priorities</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid gap-4">
-          {filteredTasks.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">
-                  No tasks found. Create your first task!
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredTasks.map((task) => (
-              <Card
-                key={task.id}
-                className={task.completed ? "opacity-75" : ""}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        checked={task.completed}
-                        onCheckedChange={(checked) =>
-                          toggleTaskCompletion(task.id, checked as boolean)
-                        }
-                        className="mt-1"
-                      />
-                      <div>
-                        <CardTitle
-                          className={`text-lg ${task.completed ? "line-through" : ""}`}
-                        >
-                          {task.title}
-                        </CardTitle>
-                        {task.description && (
-                          <CardDescription className="mt-1">
-                            {task.description}
-                          </CardDescription>
-                        )}
+    <div className="flex min-h-svh w-full text-slate-900">
+      <SidebarProvider defaultOpen>
+        <Sidebar className="hidden border-r bg-slate-50 md:flex flex-col">
+          <SidebarHeader className="flex items-center justify-center p-4">
+            <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <img src="/src/assets/logo.png" className="w-6" alt="MapleHR" />
+              MapleHR
+            </h1>
+            <SidebarTrigger />
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Menu</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive>
+                    <span>Dashboard</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a href="/employees">
+                      <span>Employees</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a href="#">
+                      <span>Access</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarFooter>
+            <Button variant="ghost" className="w-full justify-start" onClick={logout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </SidebarFooter>
+        </Sidebar>
+        <main className="flex-1 min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
+          <header className="bg-white shadow-sm border-b border-green-200 sticky top-0 z-10 flex h-14 items-center justify-between gap-4 px-4">
+            <div className="flex items-center gap-4">
+              <div className="md:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <PanelLeft />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-64 p-0">
+                    <div className="flex h-full flex-col">
+                      <SheetHeader className="flex items-center justify-between p-4">
+                        <h1 className="text-xl">MapleHR</h1>
+                        <SheetClose className="h-7 w-7 p-1">
+                          <X className="h-5 w-5" />
+                        </SheetClose>
+                      </SheetHeader>
+                      <div className="flex flex-1 flex-col overflow-y-auto">
+                        <SidebarContent>
+                          <SidebarGroup>
+                            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+                            <SidebarMenu>
+                              <SidebarMenuItem>
+                                <SidebarMenuButton isActive>
+                                  <span>Dashboard</span>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                  <a href="/employees">
+                                    <span>Employees</span>
+                                  </a>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                  <a href="#">
+                                    <span>Access</span>
+                                  </a>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
+                            </SidebarMenu>
+                          </SidebarGroup>
+                        </SidebarContent>
                       </div>
+                      <SidebarFooter className="p-4 border-t">
+                        <Button variant="ghost" className="w-full justify-start" onClick={logout}>
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Logout
+                        </Button>
+                      </SidebarFooter>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={getPriorityColor(task.priority)}>
-                        {task.priority}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTask(task.id)}
+                  </SheetContent>
+                </Sheet>
+              </div>
+              <h1 className="text-2xl font-bold text-green-800">Task Manager</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col text-right text-sm">
+                <span className="font-semibold">Mary Williams</span>
+                <span className="text-muted-foreground">Welcome back!</span>
+              </div>
+              <Button variant="outline" onClick={logout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </header>
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={setIsCreateDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Task
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Task</DialogTitle>
+                    <DialogDescription>
+                      Add a new task to your list
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        id="title"
+                        value={newTask.title}
+                        onChange={(e) =>
+                          setNewTask((prev) => ({ ...prev, title: e.target.value }))
+                        }
+                        placeholder="Enter task title"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={newTask.description}
+                        onChange={(e) =>
+                          setNewTask((prev) => ({
+                            ...prev,
+                            description: e.target.value,
+                          }))
+                        }
+                        placeholder="Enter task description (optional)"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="priority">Priority</Label>
+                      <Select
+                        value={newTask.priority}
+                        onValueChange={(value: "low" | "medium" | "high") =>
+                          setNewTask((prev) => ({ ...prev, priority: value }))
+                        }
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+                    <Button
+                      onClick={createTask}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      Create Task
+                    </Button>
                   </div>
-                </CardHeader>
-              </Card>
-            ))
-          )}
-        </div>
-      </main>
+                </DialogContent>
+              </Dialog>
+
+              <div className="flex gap-2">
+                <Select
+                  value={filter}
+                  onValueChange={(value: any) => setFilter(value)}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Tasks</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={priorityFilter}
+                  onValueChange={(value: any) => setPriorityFilter(value)}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {filteredTasks.length === 0 ? (
+                <Card>
+                  <CardContent className="py-8 text-center">
+                    <p className="text-muted-foreground">
+                      No tasks found. Create your first task!
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredTasks.map((task) => (
+                  <Card
+                    key={task.id}
+                    className={task.completed ? "opacity-75" : ""}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3">
+                          <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={(checked) =>
+                              toggleTaskCompletion(task.id, checked as boolean)
+                            }
+                            className="mt-1"
+                          />
+                          <div>
+                            <CardTitle
+                              className={`text-lg ${task.completed ? "line-through" : ""}`}
+                            >
+                              {task.title}
+                            </CardTitle>
+                            {task.description && (
+                              <CardDescription className="mt-1">
+                                {task.description}
+                              </CardDescription>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant={getPriorityColor(task.priority)}>
+                            {task.priority}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteTask(task.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        </main>
+      </SidebarProvider>
     </div>
   );
 }
